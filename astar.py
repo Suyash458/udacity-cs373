@@ -95,7 +95,7 @@ def search(grid, init, goal, cost):
         if not open_states: return []
         min_state, open_states = get_min_state(open_states)
         expand[min_state['pos'][0]][min_state['pos'][1]] = step
-        step += 1          
+        step += 1
         if min_state['pos'] == goal: break
         moves = get_all_moves(min_state['pos'], closed_states, grid)   
         min_f = min_state['f_val']
