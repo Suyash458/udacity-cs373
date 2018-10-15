@@ -1,5 +1,9 @@
+import sys
+import os
 import arcade
-from astar import grid, init, goal, cost, search
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from a_star import grid, init, goal, cost, search
 
 ROW_COUNT = len(grid)
 COLUMN_COUNT = len(grid[0])
@@ -24,7 +28,6 @@ class MyGame(arcade.Window):
             MARGIN + WIDTH // 2,
             (MARGIN + HEIGHT) * (ROW_COUNT - 1) + MARGIN + HEIGHT // 2            
         )
-        print(self.turtle_center)
         self.turtle = self.create_turtle(self.turtle_center[0], self.turtle_center[1])
         self.path = search(grid, init, goal, cost)
         self.current_step = 0

@@ -80,7 +80,6 @@ def get_path(initial_grid, path, goal):
     return grid_path
     
 def search(grid, init, goal, cost):
-    #print(grid, init, goal, cost)
     expand = [[-1 for col in row] for row in grid]
     expand[0][0] = 0
     closed_states = [{
@@ -111,10 +110,10 @@ def search(grid, init, goal, cost):
             closed_states.append(next_state)
     final_state = get_final_state(closed_states, goal)
     path = get_path(grid, final_state['path'], goal)
-    print(final_state)
-    for row in path: print(row)
-    for row in expand: print(row)
-    print(expand)
+    # print(final_state)
+    # for row in path: print(row)
+    # for row in expand: print(row)
+    # print(expand)
     return final_state['path']
 
 search(grid, init, goal, cost)

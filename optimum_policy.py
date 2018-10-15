@@ -1,3 +1,5 @@
+from utils import OrderedSet
+
 grid = [
     [0, 1, 0, 0, 0, 0],
     [0, 1, 0, 0, 0, 0],
@@ -24,7 +26,7 @@ def get_init_policy(grid, goal, max_cost):
     return policy
 
 def get_neighbors(grid, current_cell):
-    neighbors = set()
+    neighbors = OrderedSet()
     x, y = current_cell
     for move in delta:
         x_new = x + move[0]
@@ -42,15 +44,13 @@ def get_min_cost(grid, policy, current_cell):
 
 def compute_value(grid, goal, cost):
     policy = get_init_policy(grid, goal, 99)
-    change = set()
-    change.update(get_neighbors(grid, goal))
+    change = OrderedSet()
+    change |= (get_neighbors(grid, goal))
     while change:
-        current_cell = change.pop()
+        current_cell = change.pop(last=False)
         current_cost = get_min_cost(grid, policy, current_cell)
-        if current_cost + cost< policy[current_cell[0]][current_cell[1]]:
+        if current_cost + cost < policy[current_cell[0]][current_cell[1]]:
             policy[current_cell[0]][current_cell[1]] = current_cost + cost
             neighbors = get_neighbors(grid, current_cell)
-            change.update(neighbors)
+            change |= (neighbors)
     return policy
-    
-for row in compute_value(grid, goal, cost): print(row)
