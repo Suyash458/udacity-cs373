@@ -19,7 +19,7 @@ class MyGame(arcade.Window):
     def __init__(self, grid, width, height):
         super().__init__(width, height)
         arcade.set_background_color(arcade.color.BLACK)
-        self.set_update_rate(1/3)
+        self.set_update_rate(1/1.1)
         self.shape_list = None
         self.policy = get_init_policy(grid, goal, 99)
         self.current_cell = (goal[0], goal[1])
