@@ -18,12 +18,12 @@ init = [0, 0]
 goal = [len(grid)-1, len(grid[0])-1]
 cost = 1
 
-delta = [ 
+delta = [
     [-1, 0 ], # go up
     [ 0, -1], # go left
     [ 1, 0 ], # go down
     [ 0, 1 ] # go right
-] 
+]
 
 delta_name = ['^', '<', 'v', '>']
 delta_name_dict = {
@@ -78,7 +78,7 @@ def get_path(initial_grid, path, goal):
         grid_path[x][y] = move_name
     grid_path[goal[0]][goal[1]] = '*'
     return grid_path
-    
+
 def search(grid, init, goal, cost):
     expand = [[-1 for col in row] for row in grid]
     expand[0][0] = 0
@@ -96,7 +96,7 @@ def search(grid, init, goal, cost):
         expand[min_state['pos'][0]][min_state['pos'][1]] = step
         step += 1
         if min_state['pos'] == goal: break
-        moves = get_all_moves(min_state['pos'], closed_states, grid)   
+        moves = get_all_moves(min_state['pos'], closed_states, grid)
         min_f = min_state['f_val']
         min_g = min_state['g_val']
         for move in moves:

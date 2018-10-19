@@ -26,7 +26,7 @@ class MyGame(arcade.Window):
         self.grid = grid
         self.turtle_center = (
             MARGIN + WIDTH // 2,
-            (MARGIN + HEIGHT) * (ROW_COUNT - 1) + MARGIN + HEIGHT // 2            
+            (MARGIN + HEIGHT) * (ROW_COUNT - 1) + MARGIN + HEIGHT // 2
         )
         self.turtle = self.create_turtle(self.turtle_center[0], self.turtle_center[1])
         self.path = search(grid, init, goal, cost)
@@ -37,9 +37,9 @@ class MyGame(arcade.Window):
         point_list = [
             (center_x - base//2, center_y + height//2),
             (center_x + base//2, center_y + height//2),
-            (center_x, center_y - (height//2 + 5)),            
+            (center_x, center_y - (height//2 + 5)),
         ]
-        color_list = [            
+        color_list = [
             arcade.color.BLACK,
             arcade.color.BLACK,
             arcade.color.BLACK
@@ -57,40 +57,40 @@ class MyGame(arcade.Window):
                 x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
                 y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
                 current_rect = arcade.create_rectangle_filled(x, y, WIDTH, HEIGHT, color)
-                self.shape_list.append(current_rect) 
-        self.shape_list.append(self.turtle)  
+                self.shape_list.append(current_rect)
+        self.shape_list.append(self.turtle)
 
     def on_update(self, delta_t):
         if self.current_step < len(self.path):
             move = self.path[self.current_step]
             if move == 'v':
                 self.turtle_center = (
-                    self.turtle_center[0], 
+                    self.turtle_center[0],
                     self.turtle_center[1] - (HEIGHT + MARGIN)
                 )
             if move == '>':
                 self.turtle_center = (
-                    self.turtle_center[0] + (WIDTH + MARGIN), 
+                    self.turtle_center[0] + (WIDTH + MARGIN),
                     self.turtle_center[1]
-                )                
+                )
             if move == '^':
                 self.turtle_center = (
-                    self.turtle_center[0], 
+                    self.turtle_center[0],
                     self.turtle_center[1] + (HEIGHT + MARGIN)
                 )
             if move == '<':
                 self.turtle_center = (
-                    self.turtle_center[0] - (WIDTH + MARGIN), 
-                    self.turtle_center[1] 
+                    self.turtle_center[0] - (WIDTH + MARGIN),
+                    self.turtle_center[1]
                 )
             self.turtle = self.create_turtle(self.turtle_center[0], self.turtle_center[1])
             self.current_step += 1
         self.recreate_grid()
         self.shape_list.draw()
-        
+
     def on_draw(self):
         arcade.start_render()
-        self.shape_list.draw() 
+        self.shape_list.draw()
 
 def main():
     MyGame(grid, SCREEN_WIDTH, SCREEN_HEIGHT)

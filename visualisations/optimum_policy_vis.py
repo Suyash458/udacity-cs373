@@ -3,7 +3,7 @@ import os
 import arcade
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from optimum_policy import grid, goal, cost, delta, get_init_policy, get_neighbors, get_min_cost
+from optimum_policy import grid, goal, cost, delta, get_init_value_grid, get_neighbors, get_min_cost
 
 ROW_COUNT = len(grid)
 COLUMN_COUNT = len(grid[0])
@@ -19,9 +19,9 @@ class MyGame(arcade.Window):
     def __init__(self, grid, width, height):
         super().__init__(width, height)
         arcade.set_background_color(arcade.color.BLACK)
-        self.set_update_rate(1/1.1)
+        self.set_update_rate(1/3)
         self.shape_list = None
-        self.policy = get_init_policy(grid, goal, 99)
+        self.policy = get_init_value_grid(grid, goal, 99)
         self.current_cell = (goal[0], goal[1])
         self.changed = get_neighbors(grid, self.current_cell)
         self.recreate_grid()
@@ -33,7 +33,7 @@ class MyGame(arcade.Window):
                 y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
                 text = str(self.policy[row][column])
                 color = arcade.color.BLACK if not grid[row][column] else arcade.color.WHITE
-                arcade.draw_text(text, x, y, color)       
+                arcade.draw_text(text, x, y, color)
 
     def recreate_grid(self):
         self.shape_list = arcade.ShapeElementList()
@@ -50,7 +50,7 @@ class MyGame(arcade.Window):
                 x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
                 y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
                 current_rect = arcade.create_rectangle_filled(x, y, WIDTH, HEIGHT, color)
-                self.shape_list.append(current_rect) 
+                self.shape_list.append(current_rect)
 
     def on_draw(self):
         arcade.start_render()
@@ -68,7 +68,7 @@ class MyGame(arcade.Window):
             neighbors = get_neighbors(grid, self.current_cell)
             self.changed |= (neighbors)
         self.recreate_grid()
-        self.overlay_cost()       
+        self.overlay_cost()
 
 def main():
     MyGame(grid, SCREEN_WIDTH, SCREEN_HEIGHT)
