@@ -8,8 +8,8 @@ from optimum_policy import grid, goal, cost, delta, get_init_value_grid, get_nei
 ROW_COUNT = len(grid)
 COLUMN_COUNT = len(grid[0])
 
-WIDTH = 90
-HEIGHT = 90
+WIDTH = 100
+HEIGHT = 100
 MARGIN = 5
 
 SCREEN_WIDTH = (WIDTH + MARGIN) * COLUMN_COUNT + MARGIN
@@ -31,7 +31,7 @@ class MyGame(arcade.Window):
             for column in range(COLUMN_COUNT):
                 x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
                 y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
-                text = str(self.policy[row][column])
+                text = f'{self.policy[row][column]:.2f}'
                 color = arcade.color.BLACK if not grid[row][column] else arcade.color.WHITE
                 arcade.draw_text(text, x, y, color)
 
@@ -61,12 +61,12 @@ class MyGame(arcade.Window):
         if not self.changed:
             return
         self.current_cell = self.changed.pop(last=False)
-        current_cost = get_min_cost(grid, self.policy, self.current_cell)
+        stochastic_cost, optimal_direction = get_min_cost(grid, self.policy, self.current_cell)
         x, y = self.current_cell
-        if current_cost + cost < self.policy[x][y]:
-            self.policy[x][y] = current_cost + cost
+        if stochastic_cost + cost < self.policy[x][y]:
+            self.policy[x][y] = stochastic_cost + cost
             neighbors = get_neighbors(grid, self.current_cell)
-            self.changed |= (neighbors)
+            self.changed |= neighbors
         self.recreate_grid()
         self.overlay_cost()
 

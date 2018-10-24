@@ -60,13 +60,7 @@ def calculate_stochastic_cost(current_cell, adj, value):
 def get_min_cost(grid, value, current_cell):
     x, y = current_cell
     if grid[x][y]:
-        return MAX_COST
-    return min([calculate_stochastic_cost(current_cell, adj, value) for adj in get_neighbors(grid, current_cell)])
-
-def get_optimal_direction(grid, value, current_cell):
-    x, y = current_cell
-    if grid[x][y]:
-        return ' '
+        return (MAX_COST, ' ')
     neighbors = get_neighbors(grid, current_cell)
     min_adj = None
     min_value = MAX_COST
@@ -75,10 +69,10 @@ def get_optimal_direction(grid, value, current_cell):
         if min_value > stochastic_cost:
             min_value = stochastic_cost
             min_adj = adj
-    if x - min_adj[0] == 1 and y - min_adj[1] == 0: return '^'
-    if x - min_adj[0] == -1 and y - min_adj[1] == 0: return 'v'
-    if x - min_adj[0] == 0 and y - min_adj[1] == 1: return '<'
-    if x - min_adj[0] == 0 and y - min_adj[1] == -1: return '>'
+    if x - min_adj[0] == 1 and y - min_adj[1] == 0: return (min_value, '^')
+    if x - min_adj[0] == -1 and y - min_adj[1] == 0: return (min_value, 'v')
+    if x - min_adj[0] == 0 and y - min_adj[1] == 1: return (min_value, '<')
+    if x - min_adj[0] == 0 and y - min_adj[1] == -1: return (min_value, '>')
 
 def compute_value(grid, goal, cost):
     value = get_init_value_grid(grid, goal, MAX_COST)
@@ -86,16 +80,11 @@ def compute_value(grid, goal, cost):
     change = OrderedSet()
     change |= (get_neighbors(grid, goal))
     while change:
-        current_cell = change.pop(last=False)
-        stochastic_cost = get_min_cost(grid, value, current_cell)
-        min_direction = get_optimal_direction(grid, value, current_cell)
+        current_cell = change.pop()
+        stochastic_cost, optimal_direction = get_min_cost(grid, value, current_cell)
         if stochastic_cost + cost < value[current_cell[0]][current_cell[1]]:
             value[current_cell[0]][current_cell[1]] = stochastic_cost + cost
-            policy[current_cell[0]][current_cell[1]] = min_direction
+            policy[current_cell[0]][current_cell[1]] = optimal_direction
             neighbors = get_neighbors(grid, current_cell)
             change |= (neighbors)
-    for row in policy: print(row)
-    for row in value: print(row)
-    return value
-
-compute_value(grid, goal, cost)
+    return value, policy
