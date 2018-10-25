@@ -5,47 +5,96 @@ from copy import deepcopy
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-path = [
-    [0, 0],
-    [0, 10],
-    [0, 20],
-    [10, 20],
-    [20, 20],
-    [30, 20],
-    [40, 20],
-    [40, 30],
-    [40, 40]
+from a_star import search
+
+grid = [
+    [0, 1, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0],
+    [0, 0, 0, 0, 1, 0]
 ]
+
+heuristic = [
+    [9, 8, 7, 6, 5, 4],
+    [8, 7, 6, 5, 4, 3],
+    [7, 6, 5, 4, 3, 2],
+    [6, 5, 4, 3, 2, 1],
+    [5, 4, 3, 2, 1, 0]
+]
+
+init = [0, 0]
+goal = [len(grid)-1, len(grid[0])-1]
+cost = 1
+
+ROW_COUNT = len(grid)
+COLUMN_COUNT = len(grid[0])
 
 WIDTH = 100
 HEIGHT = 100
 MARGIN = 5
 
-SCREEN_WIDTH = (WIDTH + MARGIN) * 6 + MARGIN
-SCREEN_HEIGHT = (HEIGHT + MARGIN) * 6 + MARGIN
+SCREEN_WIDTH = (WIDTH + MARGIN) * COLUMN_COUNT + MARGIN
+SCREEN_HEIGHT = (HEIGHT + MARGIN) * ROW_COUNT + MARGIN
+
+def lerp(v0, v1, i):
+    return v0 + i * (v1 - v0)
+
+def get_equidistant_points(p1, p2, n):
+    return [[lerp(p1[0],p2[0],1./n*i), lerp(p1[1],p2[1],1./n*i)] for i in range(n+1)]
+
+def get_extended_path(path):
+    new_path = []
+    for i in range(len(path) - 1):
+        new_path += get_equidistant_points(path[i], path[i+1], 5)
+    return new_path
+
 
 class MyGame(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height)
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.BLACK)
         self.set_update_rate(1/2)
-        self.path = path
+        self.shape_list = None        
+        self.path = get_extended_path(self.get_grid_path(search(grid, heuristic, init, goal, cost)['path']))
         self.smooth_path = deepcopy(self.path)
         self.change = 1
-        self.weight_data = 0.15
-        self.weight_smooth = 0.1
+        self.weight_data = 0.03
+        self.weight_smooth = 0.15
         self.tolerance = 0.000001
+    
+    def get_grid_path(self, path):
+        return [self.get_grid_points(p[0], p[1]) for p in path]
+
+    def get_grid_points(self, row, column):
+        x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
+        y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
+        return [x, y]
+
+    def recreate_grid(self):
+        self.shape_list = arcade.ShapeElementList()
+        for row in range(ROW_COUNT):
+            for column in range(COLUMN_COUNT):
+                if grid[row][column]:
+                    color = arcade.color.SMOKY_BLACK
+                else:
+                    color = arcade.color.WHITE
+                x, y = self.get_grid_points(row, column)
+                current_rect = arcade.create_rectangle_filled(x, y, WIDTH, HEIGHT, color)
+                self.shape_list.append(current_rect)
 
     def draw_original_path(self):
-        point_list = tuple(tuple([point[0]*5 + 200, point[1]*5 + 200]) for point in self.path)
-        arcade.draw_line_strip(point_list, arcade.color.BLACK, 3)
+        point_list = tuple(tuple([point[0], point[1]]) for point in self.path)
+        arcade.draw_line_strip(point_list, arcade.color.BLACK, 5)
 
     def draw_smooth_path(self):
-        point_list = tuple(tuple([point[0]*5 + 200, point[1]*5 + 200]) for point in self.smooth_path)
-        arcade.draw_line_strip(point_list, arcade.color.RED, 2)        
+        point_list = tuple(tuple([point[0], point[1]]) for point in self.smooth_path)
+        arcade.draw_line_strip(point_list, arcade.color.RED, 5)        
 
     def on_draw(self):
         arcade.start_render()
+        self.recreate_grid()
+        self.shape_list.draw()
         self.draw_original_path()
         self.draw_smooth_path()
 
