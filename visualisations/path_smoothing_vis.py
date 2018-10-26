@@ -37,6 +37,14 @@ MARGIN = 5
 SCREEN_WIDTH = (WIDTH + MARGIN) * COLUMN_COUNT + MARGIN
 SCREEN_HEIGHT = (HEIGHT + MARGIN) * ROW_COUNT + MARGIN
 
+def get_grid_path(path):
+    return [get_grid_points(p[0], p[1]) for p in path]
+
+def get_grid_points(row, column):
+    x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
+    y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
+    return [x, y]
+
 def lerp(v0, v1, i):
     return v0 + i * (v1 - v0)
 
@@ -46,7 +54,7 @@ def get_equidistant_points(p1, p2, n):
 def get_extended_path(path):
     new_path = []
     for i in range(len(path) - 1):
-        new_path += get_equidistant_points(path[i], path[i+1], 5)
+        new_path += get_equidistant_points(path[i], path[i+1], 15)
     return new_path
 
 
@@ -54,22 +62,15 @@ class MyGame(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height)
         arcade.set_background_color(arcade.color.BLACK)
-        self.set_update_rate(1/2)
-        self.shape_list = None        
-        self.path = get_extended_path(self.get_grid_path(search(grid, heuristic, init, goal, cost)['path']))
+        self.set_update_rate(1/10)
+        self.shape_list = None   
+        *_, self.final_state = search(grid, heuristic, init, goal, cost)
+        self.path = get_extended_path(get_grid_path(self.final_state['path']))
         self.smooth_path = deepcopy(self.path)
         self.change = 1
-        self.weight_data = 0.03
-        self.weight_smooth = 0.15
+        self.weight_data = 0.02
+        self.weight_smooth = 0.4
         self.tolerance = 0.000001
-    
-    def get_grid_path(self, path):
-        return [self.get_grid_points(p[0], p[1]) for p in path]
-
-    def get_grid_points(self, row, column):
-        x = (MARGIN + WIDTH) * column + MARGIN + WIDTH // 2
-        y = (MARGIN + HEIGHT) * (ROW_COUNT - row - 1) + MARGIN + HEIGHT // 2
-        return [x, y]
 
     def recreate_grid(self):
         self.shape_list = arcade.ShapeElementList()
@@ -79,7 +80,7 @@ class MyGame(arcade.Window):
                     color = arcade.color.SMOKY_BLACK
                 else:
                     color = arcade.color.WHITE
-                x, y = self.get_grid_points(row, column)
+                x, y = get_grid_points(row, column)
                 current_rect = arcade.create_rectangle_filled(x, y, WIDTH, HEIGHT, color)
                 self.shape_list.append(current_rect)
 
