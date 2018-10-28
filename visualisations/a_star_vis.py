@@ -72,11 +72,11 @@ class MyGame(arcade.Window):
             pos = next(self.path)['pos']
             self.turtle_center = get_grid_points(pos[0], pos[1])
             self.turtle = self.create_turtle(self.turtle_center[0], self.turtle_center[1])
+            self.visited.append(pos)            
         except:
             pass
         self.recreate_grid()
-        self.shape_list.draw()
-        self.visited.append(pos)
+        self.shape_list.draw()            
 
     def on_draw(self):
         arcade.start_render()

@@ -33,14 +33,13 @@ delta_name_dict = {
     '>': [0, 1]
 }
 
-min_func = 'f_val'
-
 def get_init_state():
     return [{
         'f_val': heuristic[0][0],
         'g_val': 0,
         'pos': [0, 0],
-        'path': ''
+        'path': [[0, 0]],
+        'directions': ''
     }]
 
 def get_all_moves(current_state, closed_states, grid):
@@ -55,7 +54,7 @@ def get_all_moves(current_state, closed_states, grid):
                 moves.append(([x_new, y_new], name))
     return moves
 
-def get_min_state(open_states):
+def get_min_state(open_states, min_func):
     open_states = sorted(open_states, key = lambda x: x[min_func])
     min_state = open_states[0] if open_states else []
     open_states = open_states[1::]
@@ -79,20 +78,16 @@ def get_path(initial_grid, path, goal):
     grid_path[goal[0]][goal[1]] = '*'
     return grid_path
 
-def search(grid, init, goal, cost):
+def search(grid, heuristic, init, goal, cost):
+    min_func = 'f_val' if heuristic else 'g_val'
     expand = [[-1 for col in row] for row in grid]
     expand[0][0] = 0
-    closed_states = [{
-        'f_val': heuristic[0][0],
-        'g_val': 0,
-        'pos': [0, 0],
-        'path': ''
-    }]
+    closed_states = get_init_state()
     open_states = get_init_state()
     step = 0
     while not check_goal(closed_states, goal):
         if not open_states: return []
-        min_state, open_states = get_min_state(open_states)
+        min_state, open_states = get_min_state(open_states, min_func)
         expand[min_state['pos'][0]][min_state['pos'][1]] = step
         step += 1
         if min_state['pos'] == goal: break
@@ -101,19 +96,14 @@ def search(grid, init, goal, cost):
         min_g = min_state['g_val']
         for move in moves:
             next_state = {
-                'f_val': min_g + cost + heuristic[move[0][0]][move[0][1]],
+                'f_val': min_f + cost + (heuristic[move[0][0]][move[0][1]] if heuristic else 0),
                 'g_val': min_g + cost,
                 'pos': move[0],
-                'path': min_state['path'] + move[1]
+                'path': min_state['path'] + [move[0]],
+                'directions': min_state['directions'] + move[1]
             }
             open_states.append(next_state)
             closed_states.append(next_state)
+        yield min_state
     final_state = get_final_state(closed_states, goal)
-    path = get_path(grid, final_state['path'], goal)
-    # print(final_state)
-    # for row in path: print(row)
-    # for row in expand: print(row)
-    # print(expand)
-    return final_state['path']
-
-search(grid, init, goal, cost)
+    yield final_state
